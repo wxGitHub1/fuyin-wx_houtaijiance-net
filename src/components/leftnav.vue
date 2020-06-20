@@ -2,18 +2,18 @@
 * 左边菜单
 */ 
 <template>
-  <el-menu default-active="2" :collapse="collapsed" collapse-transition router :default-active="$route.path" unique-opened class="el-menu-vertical-demo" background-color="#F0F0F0" text-color="#000" active-text-color="#276476">
+  <el-menu  :collapse="collapsed" collapse-transition router :default-active="$route.path" unique-opened class="el-menu-vertical-demo" background-color="#F0F0F0" text-color="#000" active-text-color="#276476">
     <!-- <div class="logobox">
       <img class="logoimg" src="../assets/img/logo.png" alt="">
     </div> -->
     <el-submenu v-for="menu in allmenu" :key="menu.menuid" :index="menu.menuname">
-      <template slot="title">
-        <i class="iconfont" :class="menu.icon"></i>
+      <template slot="title" >
+        <i class="iconfont" style="color:#000" :class="menu.icon"></i>
         <span>{{menu.menuname}}</span>
       </template>
       <el-menu-item-group>
         <el-menu-item v-for="chmenu in menu.menus" :index="'/'+chmenu.url" :key="chmenu.menuid">
-          <i class="iconfont" :class="chmenu.icon"></i>
+          <i class="iconfont" :class="chmenu.icon" style="color:#276476"></i>
           <span>{{chmenu.menuname}}</span>
         </el-menu-item>
       </el-menu-item-group>

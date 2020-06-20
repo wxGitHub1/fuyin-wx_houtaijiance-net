@@ -79,7 +79,7 @@ export default {
 .aside {
   width: 64px !important;
   height: 100%;
-  background-color: #334157;
+  background-color: #F0F0F0;
   margin: 0px;
 }
 .asideshow {
