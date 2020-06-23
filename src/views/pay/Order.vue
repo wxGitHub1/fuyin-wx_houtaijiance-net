@@ -69,11 +69,7 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-select
-          clearable
-          v-model="formInline.isVisit"
-          placeholder="请选择是否到访"
-        >
+        <el-select clearable v-model="formInline.isVisit" placeholder="请选择是否到访">
           <el-option
             v-for="item in formInline.isVisitList"
             :key="item.id"
@@ -107,15 +103,15 @@
       element-loading-background="rgba(0, 0, 0, 0.8)"
     >
       <!-- <el-table-column align="center" type="selection" width="60"></el-table-column> -->
-      <el-table-column prop="hospitalName" label="医院"></el-table-column>
-      <el-table-column prop="departmentName" label="科室"></el-table-column>
-      <el-table-column prop="doctorName" label="医生"></el-table-column>
-      <el-table-column prop="accessTime" label="访问时间"></el-table-column>
-      <el-table-column prop="phone" label="客户扫描手机"></el-table-column>
-      <el-table-column prop="phone" label="客户预约手机"></el-table-column>
-      <el-table-column prop="orderCount" label="预约时间"></el-table-column>
-      <el-table-column prop="orderCount" label="是否到访"></el-table-column>
-      
+      <el-table-column prop="hospital" label="医院"></el-table-column>
+      <el-table-column prop="deptment" label="科室"></el-table-column>
+      <el-table-column prop="doctor" label="医生"></el-table-column>
+      <el-table-column prop="visittime" label="访问时间"></el-table-column>
+      <el-table-column prop="scanphone" label="客户扫描手机"></el-table-column>
+      <el-table-column prop="yuyuephone" label="客户预约手机"></el-table-column>
+      <el-table-column prop="yuyuetime" label="预约时间"></el-table-column>
+      <el-table-column prop="isvisit" label="是否到访"></el-table-column>
+
       <!-- <el-table-column  prop="editTime" label="修改时间" >
         <template slot-scope="scope">
           <div>{{scope.row.editTime|timestampToTime}}</div>
@@ -124,9 +120,13 @@
       <!-- <el-table-column  prop="editUser" label="修改人" ></el-table-column> -->
       <el-table-column align="center" label="操作" width="400">
         <template slot-scope="scope">
-          <el-button size="mini" type="success" @click="handleEdit(scope.row)">确认到访</el-button>
-          <el-button size="mini" type="success" @click="getdataList(scope.row)">修改号码</el-button>
-          <el-button size="mini" type="success" @click="getdataList(scope.row)">预约时间修改</el-button>
+          <el-button size="mini" type="success" @click="confirm_visit_func(scope.row.scanid)">确认到访</el-button>
+          <el-button size="mini" type="success" @click="change_number_func(scope.row)">修改号码</el-button>
+          <el-button
+            size="mini"
+            type="success"
+            @click="modify_appointment_time_func(scope.row)"
+          >预约时间修改</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -200,6 +200,76 @@
         <el-table-column prop="orderNum" label="订单号"></el-table-column>
       </el-table>
     </el-dialog>
+    <!-- 修改号码界面 -->
+    <el-dialog
+      :title="title3"
+      :visible.sync="change_number_dialog"
+      :before-close="change_number_cancel"
+      width="30%"
+    >
+      <el-form :inline="true" size="small" id="search">
+        <el-form-item label="修改后手机号">
+          <el-input class="w-150" clearable v-model="modify_phone" placeholder="请输入手机号"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button
+          @click="change_number_cancel()"
+          type="primary"
+          size="mini"
+          icon="el-icon-circle-close"
+        >关闭</el-button>
+        <el-button
+          @click="change_number_save()"
+          type="success"
+          size="mini"
+          icon="el-icon-circle-plus-outline"
+        >保存</el-button>
+      </span>
+    </el-dialog>
+    <!-- 修改预约时间界面 -->
+    <el-dialog
+      :title="title4"
+      :visible.sync="modify_appointment_time_dialog"
+      :before-close="modify_appointment_time_cancel"
+      width="30%"
+    >
+      <el-form :inline="false" size="small" id="search">
+        <el-form-item label="预约时间">
+          <el-date-picker
+            size="mini"
+            v-model="modify.time"
+            type="datetime"
+            format="yyyy-MM-dd HH:mm"
+            value-format="yyyy-MM-dd HH:mm"
+            placeholder="选择日期时间"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="是否拒绝不来">
+          <el-radio-group v-model="modify.isGo" @change="isGo_func(modify.isGo)">
+            <el-radio label="是"></el-radio>
+            <el-radio label="否"></el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="不来的原因" v-if="isReason">
+          <el-input type="textarea" v-model="modify.reason"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button
+          @click="modify_appointment_time_cancel()"
+          type="primary"
+          size="mini"
+          icon="el-icon-circle-close"
+        >关闭</el-button>
+        <el-button
+          @click="modify_appointment_time_save()"
+          type="success"
+          size="mini"
+          icon="el-icon-circle-plus-outline"
+        >保存</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -210,7 +280,10 @@ import {
   queryDoctorByDepartmentId, //医生
   queryGuideByPage,
   queryGuideDetail,
-  addGuideDetail
+  addGuideDetail,
+  //二龙
+  GetScanGongZhongHaoList,
+  InsertGongZhongHao
 } from "../../api/javaApi";
 import javaApi from "../../api/javaApi";
 // import { deptList, deptSave, deptDelete } from "../../api/userMG";
@@ -252,8 +325,12 @@ export default {
       loading_bc: false, //是显示加载
       editFormVisible: false, //控制编辑页面显示与隐藏
       xq_editFormVisible: false, //控制编辑页面显示与隐藏
+      change_number_dialog: false, //修改号码弹框
+      modify_appointment_time_dialog: false, //修改预约时间弹框
       title: "添加",
       title2: "详情",
+      title3: "修改号码",
+      title4: "预约时间修改",
       editForm: {
         guideId: null,
         orderTime: null,
@@ -282,17 +359,26 @@ export default {
         hospitalList: [],
         departmentList: [],
         doctorList: [],
-        isVisitList:[
-          {name:"是",id:1},
-          {name:"否",id:2},
+        isVisitList: [
+          { name: "是", id: 1 },
+          { name: "否", id: 2 }
         ],
-        isVisit:null,
+        isVisit: null
+
         // page: 1,
         // limit: 10,
         // varLable: "",
         // varName: "",
         // token: localStorage.getItem("logintoken")
       },
+      modify: {
+        time: null,
+        isGo: "是",
+        reason: null
+      },
+      isReason:true,
+      modify_phone: null, //修改手机号
+      scanid: null, //用户唯一id
       // 删除部门
       // seletedata: {
       //   ids: "",
@@ -329,38 +415,151 @@ export default {
    * 里面的方法只有被调用才会执行
    */
   methods: {
-    // 查询列表
-    getdata(pageIndex = 1, pageSize = 10) {
-      this.loading = true;
-      let data = {
-        pageSize: this.pageparm.pageSize,
-        pageNum: this.pageparm.currentPage,
-        hospitalId: this.formInline.hospitalId || null,
-        departmentId: this.formInline.departmentId || null,
-        doctorId: this.formInline.doctorId || null,
-        phone: this.formInline.phone || null,
-        accessBeginTime:
-          this.formInline.accessTime == null
-            ? null
-            : this.formInline.accessTime[0] || null,
-        accessEndTime:
-          this.formInline.accessTime == null
-            ? null
-            : this.formInline.accessTime[1] || null
+    isGo_func(isGo){
+      if(isGo == "是"){
+        this.isReason=true
+      }else{
+        this.isReason=false
+      }
+    },
+    modify_appointment_time_cancel() {
+      this.modify_appointment_time_dialog = false;
+    },
+    modify_appointment_time_save() {
+        let data = {
+        scanid: this.scanid,
+        yuyuetime:this.modify.time,
+        reson:this.modify.reason
       };
-      queryGuideByPage(data)
+      InsertGongZhongHao(data)
         .then(res => {
           console.log(res);
           this.loading = false;
-          if (res.data.returnCode != 0) {
+          if (res.data.Error != false) {
             this.$message({
               type: "warning",
               message: res.data.returnMsg,
               center: true
             });
           } else {
-            this.listData = res.data.data;
-            this.pageparm.total = res.data.total;
+            this.modify_appointment_time_cancel();
+            this.getdata();
+          }
+        })
+        .catch(err => {
+          this.loading = false;
+        });
+    },
+    modify_appointment_time_func(obj) {
+      this.scanid = obj.scanid;
+      this.modify_appointment_time_dialog = true;
+    },
+    confirm_visit_func(id) {
+      let deleteData = {
+        scanid: id
+      };
+      // debugger
+      this.$confirm("是否确认到访？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          InsertGongZhongHao(deleteData)
+            .then(res => {
+              // debugger
+              if (res.data.Error != false) {
+                this.$message({
+                  type: "warning",
+                  message: res.data.returnMsg,
+                  center: true
+                });
+              } else {
+                setTimeout(() => {
+                  this.$message({
+                    type: "success",
+                    message: "确认成功！",
+                    center: true
+                  });
+                  this.getdata();
+                }, 500);
+              }
+            })
+            .catch(err => {
+              reject(err);
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "取消删除"
+          });
+        });
+    },
+    change_number_cancel() {
+      this.change_number_dialog = false;
+    },
+    change_number_save() {
+      let data = {
+        scanid: this.scanid,
+        yuyuephone: this.modify_phone
+      };
+      InsertGongZhongHao(data)
+        .then(res => {
+          console.log(res);
+          this.loading = false;
+          if (res.data.Error != false) {
+            this.$message({
+              type: "warning",
+              message: res.data.returnMsg,
+              center: true
+            });
+          } else {
+            this.change_number_cancel();
+            this.getdata();
+          }
+        })
+        .catch(err => {
+          this.loading = false;
+        });
+    },
+    change_number_func(obj) {
+      this.scanid = obj.scanid;
+      this.change_number_dialog = true;
+    },
+    // 查询列表
+    getdata(pageIndex = 1, pageSize = 10) {
+      this.loading = true;
+      let data = {
+        pageSize: this.pageparm.pageSize,
+        pageIndex: this.pageparm.currentPage,
+        WhereLambda: {}
+        // hospitalId: this.formInline.hospitalId || null,
+        // departmentId: this.formInline.departmentId || null,
+        // doctorId: this.formInline.doctorId || null,
+        // phone: this.formInline.phone || null,
+        // accessBeginTime:
+        //   this.formInline.accessTime == null
+        //     ? null
+        //     : this.formInline.accessTime[0] || null,
+        // accessEndTime:
+        //   this.formInline.accessTime == null
+        //     ? null
+        //     : this.formInline.accessTime[1] || null
+      };
+      GetScanGongZhongHaoList(data)
+        .then(res => {
+          console.log(res);
+          this.loading = false;
+          if (res.data.Error != false) {
+            this.$message({
+              type: "warning",
+              message: res.data.returnMsg,
+              center: true
+            });
+          } else {
+            this.listData = res.data.ResponseModel.list;
+            this.pageparm.total = res.data.ResponseModel.total;
           }
         })
         .catch(err => {
@@ -454,23 +653,23 @@ export default {
     exportExcels() {
       this.excelLoad = true;
       let data = {
-        hospitalId: this.formInline.hospitalId || null,
-        departmentId: this.formInline.departmentId || null,
-        doctorId: this.formInline.doctorId || null,
-        phone: this.formInline.phone || null,
-        accessBeginTime:
-          this.formInline.accessTime == null
-            ? null
-            : this.formInline.accessTime[0] || null,
-        accessEndTime:
-          this.formInline.accessTime == null
-            ? null
-            : this.formInline.accessTime[1] || null
+        // hospitalId: this.formInline.hospitalId || null,
+        // departmentId: this.formInline.departmentId || null,
+        // doctorId: this.formInline.doctorId || null,
+        // phone: this.formInline.phone || null,
+        // accessBeginTime:
+        //   this.formInline.accessTime == null
+        //     ? null
+        //     : this.formInline.accessTime[0] || null,
+        // accessEndTime:
+        //   this.formInline.accessTime == null
+        //     ? null
+        //     : this.formInline.accessTime[1] || null
       };
       const lsyObj = {
         method: "post",
         fileName: "客户信息",
-        url: javaApi.ExportUrl,
+        url: javaApi.ExportDataGongZhongHao2,
         data: data
       };
       exportMethod(this, lsyObj);
