@@ -4,8 +4,8 @@ import axios from '../utils/asiox';
  * @param {*} params {}
  * baseUrl  接口路径
  */
-const baseUrl  = 'http://117.34.105.87:10560';//服务器IP
-// const baseUrl  = 'http://192.168.1.112:8086';//李思雨IP
+// const baseUrl  = 'http://117.34.105.87:10560';//服务器IP
+const baseUrl  = 'http://192.168.1.109:80';//李思雨IP
 //用户管理
 export const getHospitalList = async params => axios.get(baseUrl  + '/hospital/getHospitalList', params);//查询医院清单
 export const selectDepartmentByHospitalId = async params => axios.get(baseUrl  + '/department/selectDepartmentByHospitalId', params);//根据医院ID查询科室信息

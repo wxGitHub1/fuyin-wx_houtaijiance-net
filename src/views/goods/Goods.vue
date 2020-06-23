@@ -99,9 +99,9 @@
       <el-table-column prop="departmentName" label="科室"></el-table-column>
       <el-table-column prop="doctorName" label="医生"></el-table-column>
       <el-table-column prop="phone" label="客户手机"></el-table-column>
-      <el-table-column prop="phone" label="客户预约手机"></el-table-column>
+      <el-table-column prop="reservePhone" label="客户预约手机"></el-table-column>
       <el-table-column prop="orderCount" label="下单次数"></el-table-column>
-      <el-table-column prop="orderCount" label="下单金额"></el-table-column>
+      <el-table-column prop="moneyCount" label="下单金额"></el-table-column>
       <el-table-column prop="accessTime" label="访问时间"></el-table-column>
       <!-- <el-table-column  prop="editTime" label="修改时间" >
         <template slot-scope="scope">
