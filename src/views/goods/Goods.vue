@@ -450,7 +450,7 @@ export default {
       }
       const lsyObj = {
         method: "post",
-        fileName: "客户信息",
+        fileName: "扫码统计信息",
         url: javaApi.ExportUrl,
         data: data
       };

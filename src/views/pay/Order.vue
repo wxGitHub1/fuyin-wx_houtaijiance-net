@@ -74,12 +74,12 @@
             v-for="item in formInline.isVisitList"
             :key="item.id"
             :label="item.name"
-            :value="item.id"
+            :value="item.name"
           ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-input v-model="formInline.phone" placeholder="输入客户预约手机号"></el-input>
+        <el-input v-model="formInline.yuyuephone" placeholder="输入客户预约手机号"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
@@ -353,6 +353,7 @@ export default {
         pageNum: 1,
         date: null,
         phone: null,
+        yuyuephone: null,
         hospitalId: null,
         departmentId: null,
         doctorId: null,
@@ -363,8 +364,8 @@ export default {
           { name: "是", id: 1 },
           { name: "否", id: 2 }
         ],
-        isVisit: null
-
+        isVisit: null,
+        accessTime: null
         // page: 1,
         // limit: 10,
         // varLable: "",
@@ -376,7 +377,7 @@ export default {
         isGo: "是",
         reason: null
       },
-      isReason:true,
+      isReason: true,
       modify_phone: null, //修改手机号
       scanid: null, //用户唯一id
       // 删除部门
@@ -415,21 +416,24 @@ export default {
    * 里面的方法只有被调用才会执行
    */
   methods: {
-    isGo_func(isGo){
-      if(isGo == "是"){
-        this.isReason=true
-      }else{
-        this.isReason=false
+    isGo_func(isGo) {
+      if (isGo == "是") {
+        this.isReason = true;
+      } else {
+        this.isReason = false;
       }
     },
     modify_appointment_time_cancel() {
       this.modify_appointment_time_dialog = false;
+      this.modify.time=null
+      this.modify.isGo="是"
+      this.modify.reason=null
     },
     modify_appointment_time_save() {
-        let data = {
+      let data = {
         scanid: this.scanid,
-        yuyuetime:this.modify.time,
-        reson:this.modify.reason
+        yuyuetime: this.modify.time,
+        reson: this.modify.reason
       };
       InsertGongZhongHao(data)
         .then(res => {
@@ -530,22 +534,49 @@ export default {
     // 查询列表
     getdata(pageIndex = 1, pageSize = 10) {
       this.loading = true;
+      let hospitalName = null;
+      let deptmentName = null;
+      let doctorName = null;
+      if (this.formInline.hospitalId) {
+        this.formInline.hospitalList.forEach(obj => {
+          if (this.formInline.hospitalId == obj.id) {
+            hospitalName = obj.name;
+          }
+        });
+      }
+      if (this.formInline.departmentId) {
+        this.formInline.departmentList.forEach(obj => {
+          if (this.formInline.departmentId == obj.departmentId) {
+            deptmentName = obj.departmentName;
+          }
+        });
+      }
+      if (this.formInline.doctorId) {
+        this.formInline.doctorList.forEach(obj => {
+          if (this.formInline.doctorId == obj.doctorId) {
+            doctorName = obj.name;
+          }
+        });
+      }
       let data = {
         pageSize: this.pageparm.pageSize,
         pageIndex: this.pageparm.currentPage,
-        WhereLambda: {}
-        // hospitalId: this.formInline.hospitalId || null,
-        // departmentId: this.formInline.departmentId || null,
-        // doctorId: this.formInline.doctorId || null,
-        // phone: this.formInline.phone || null,
-        // accessBeginTime:
-        //   this.formInline.accessTime == null
-        //     ? null
-        //     : this.formInline.accessTime[0] || null,
-        // accessEndTime:
-        //   this.formInline.accessTime == null
-        //     ? null
-        //     : this.formInline.accessTime[1] || null
+        WhereLambda: {
+          hospital: hospitalName,
+          deptment: deptmentName,
+          doctor: doctorName,
+          scanphone: this.formInline.phone || null,
+          yuyuephone: this.formInline.yuyuephone || null,
+          isvisit: this.formInline.isVisit || null,
+          startyuyuetime:
+            this.formInline.accessTime == null
+              ? null
+              : this.formInline.accessTime[0],
+          endyuyuetime:
+            this.formInline.accessTime == null
+              ? null
+              : this.formInline.accessTime[1]
+        }
       };
       GetScanGongZhongHaoList(data)
         .then(res => {
@@ -554,9 +585,11 @@ export default {
           if (res.data.Error != false) {
             this.$message({
               type: "warning",
-              message: res.data.returnMsg,
+              message: res.data.ErrorMessage,
               center: true
             });
+            this.listData = [];
+            this.pageparm.total = 0;
           } else {
             this.listData = res.data.ResponseModel.list;
             this.pageparm.total = res.data.ResponseModel.total;
@@ -651,28 +684,73 @@ export default {
     },
     //导出excel
     exportExcels() {
-      this.excelLoad = true;
+      // this.excelLoad = true;
+      let hospitalName = null;
+      let deptmentName = null;
+      let doctorName = null;
+      if (this.formInline.hospitalId) {
+        this.formInline.hospitalList.forEach(obj => {
+          if (this.formInline.hospitalId == obj.id) {
+            hospitalName = obj.name;
+          }
+        });
+      }
+      if (this.formInline.departmentId) {
+        this.formInline.departmentList.forEach(obj => {
+          if (this.formInline.departmentId == obj.departmentId) {
+            deptmentName = obj.departmentName;
+          }
+        });
+      }
+      if (this.formInline.doctorId) {
+        this.formInline.doctorList.forEach(obj => {
+          if (this.formInline.doctorId == obj.doctorId) {
+            doctorName = obj.name;
+          }
+        });
+      }
       let data = {
-        // hospitalId: this.formInline.hospitalId || null,
-        // departmentId: this.formInline.departmentId || null,
-        // doctorId: this.formInline.doctorId || null,
-        // phone: this.formInline.phone || null,
-        // accessBeginTime:
-        //   this.formInline.accessTime == null
-        //     ? null
-        //     : this.formInline.accessTime[0] || null,
-        // accessEndTime:
-        //   this.formInline.accessTime == null
-        //     ? null
-        //     : this.formInline.accessTime[1] || null
+        hospital: hospitalName,
+        deptment: deptmentName,
+        doctor: doctorName,
+        scanphone: this.formInline.phone || null,
+        yuyuephone: this.formInline.yuyuephone || null,
+        isvisit: this.formInline.isVisit || null,
+        startyuyuetime:
+          this.formInline.accessTime == null
+            ? null
+            : this.formInline.accessTime[0],
+        endyuyuetime:
+          this.formInline.accessTime == null
+            ? null
+            : this.formInline.accessTime[1]
       };
-      const lsyObj = {
-        method: "post",
-        fileName: "客户信息",
-        url: javaApi.ExportDataGongZhongHao2,
-        data: data
-      };
-      exportMethod(this, lsyObj);
+      let myurl =
+        javaApi.ExportDataGongZhongHao2 +
+        "?hospital=" +
+        data.hospital +
+        "&deptment=" +
+        data.deptment +
+        "&doctor=" +
+        data.doctor +
+        "&scanphone=" +
+        data.scanphone +
+        "&isvisit=" +
+        data.isvisit +
+        "&yuyuephone=" +
+        data.yuyuephone +
+        "&startyuyuetime=" +
+        data.startyuyuetime +
+        "&endyuyuetime=" +
+        data.endyuyuetime;
+      window.open(myurl);
+      // const lsyObj = {
+      //   method: "post",
+      //   fileName: "预约信息",
+      //   url: javaApi.ExportDataGongZhongHao2,
+      //   data: data
+      // };
+      // exportMethod(this, lsyObj);
     },
     //医院
     hospitals() {
