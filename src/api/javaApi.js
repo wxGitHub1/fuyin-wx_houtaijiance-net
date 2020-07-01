@@ -5,8 +5,8 @@ import axios from '../utils/asiox';
  * baseUrl  接口路径
  */
 // const baseUrl  = 'http://10a73e815af4.ngrok.io';//服务器IP
-// const baseUrl  = 'http://117.34.105.87:80';//服务器IP
-const baseUrl  = 'http://192.168.1.108:80';//杨腾飞IP
+const baseUrl  = 'http://117.34.105.87:10550';//服务器IP
+// const baseUrl  = 'http://192.168.1.108:10550';//杨腾飞IP
 //用户管理
 export const getHospitalList = async params => axios.get(baseUrl  + '/hospital/getHospitalList', params);//查询医院清单
 export const selectDepartmentByHospitalId = async params => axios.get(baseUrl  + '/department/selectDepartmentByHospitalId', params);//根据医院ID查询科室信息
