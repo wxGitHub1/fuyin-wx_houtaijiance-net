@@ -108,7 +108,7 @@
       <el-table-column prop="doctor" label="医生"></el-table-column>
       <el-table-column prop="visittime" label="访问时间"></el-table-column>
       <el-table-column prop="scanphone" label="客户扫描手机"></el-table-column>
-      <el-table-column prop="yuyuephone" label="客户预约手机"></el-table-column>
+      <!-- <el-table-column prop="yuyuephone" label="客户预约手机"></el-table-column> -->
       <el-table-column prop="yuyuetime" label="预约时间"></el-table-column>
       <el-table-column prop="isvisit" label="是否到访"></el-table-column>
 
@@ -208,7 +208,7 @@
       width="30%"
     >
       <el-form :inline="true" size="small" id="search">
-        <el-form-item label="修改后手机号">
+        <el-form-item label="手机号">
           <el-input class="w-150" clearable v-model="modify_phone" placeholder="请输入手机号"></el-input>
         </el-form-item>
       </el-form>
@@ -374,7 +374,7 @@ export default {
       },
       modify: {
         time: null,
-        isGo: "是",
+        isGo: "",
         reason: null
       },
       isReason: true,
@@ -426,7 +426,7 @@ export default {
     modify_appointment_time_cancel() {
       this.modify_appointment_time_dialog = false;
       this.modify.time=null
-      this.modify.isGo="是"
+      this.modify.isGo=""
       this.modify.reason=null
     },
     modify_appointment_time_save() {
@@ -457,6 +457,10 @@ export default {
     modify_appointment_time_func(obj) {
       this.scanid = obj.scanid;
       this.modify_appointment_time_dialog = true;
+      this.modify.time=obj.yuyuetime
+      this.modify.isGo= obj.isjujue
+      this.modify.reason= obj.reson
+      this.isGo_func(obj.isjujue)
     },
     confirm_visit_func(id) {
       let deleteData = {
@@ -530,6 +534,7 @@ export default {
     change_number_func(obj) {
       this.scanid = obj.scanid;
       this.change_number_dialog = true;
+      this.modify_phone=obj.scanphone
     },
     // 查询列表
     getdata(pageIndex = 1, pageSize = 10) {
